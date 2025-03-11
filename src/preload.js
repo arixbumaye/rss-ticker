@@ -1,24 +1,22 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const { version } = require('../package.json');
 
-// Expose minimal API to the renderer process
-contextBridge.exposeInMainWorld('electronAPI', {
-  closeWindow: () => {
-    ipcRenderer.send('close-app');
-  },
-  // Add update-related functions
-  checkForUpdates: () => {
-    ipcRenderer.send('check-for-updates');
-  },
-  onUpdateAvailable: (callback) => {
-    ipcRenderer.on('update-available', callback);
-  },
-  onUpdateMessage: (callback) => {
-    ipcRenderer.on('update-message', (event, text) => callback(text));
-  },
-  onDownloadProgress: (callback) => {
-    ipcRenderer.on('download-progress', (event, progressObj) => callback(progressObj));
-  },
-  // Expose app version
-  appVersion: version
-}); 
+// Expose protected methods that allow the renderer process to use
+// the ipcRenderer without exposing the entire object
+contextBridge.exposeInMainWorld(
+  'electronAPI', {
+    // App version
+    appVersion: version,
+    
+    // Auto-update functions
+    checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+    
+    // Auto-update events
+    onUpdateAvailable: (callback) => {
+      ipcRenderer.on('update-available', (_, info) => callback(info));
+    },
+    onUpdateMessage: (callback) => {
+      ipcRenderer.on('update-message', (_, message) => callback(message));
+    }
+  }
+); 

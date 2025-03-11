@@ -1,6 +1,7 @@
-const { app, BrowserWindow, screen, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, screen, ipcMain, shell } = require('electron');
 const path = require('path');
 const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
 
 let mainWindow;
 
@@ -15,10 +16,18 @@ app.commandLine.appendSwitch('disable-gpu');
 app.commandLine.appendSwitch('disable-software-rasterizer');
 
 // Configure auto updater
-autoUpdater.logger = require('electron-log');
+autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
-autoUpdater.autoDownload = true;
-autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = false;
+autoUpdater.disableWebInstaller = true;
+autoUpdater.allowDowngrade = true;
+autoUpdater.allowPrerelease = false;
+
+// For macOS, disable code signature checking
+if (process.platform === 'darwin') {
+  autoUpdater.forceDevUpdateConfig = true;
+}
 
 function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -64,47 +73,42 @@ function createWindow() {
   
   // Open DevTools for debugging
   // mainWindow.webContents.openDevTools({ mode: 'detach' });
+
+  // Set up IPC handlers
+  ipcMain.handle('check-for-updates', () => {
+    log.info('Manual check for updates requested');
+    autoUpdater.checkForUpdates().catch(err => {
+      log.error('Error checking for updates:', err);
+    });
+  });
+
+  // Open external links in default browser
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
 }
 
 // Auto-updater events
 autoUpdater.on('checking-for-update', () => {
-  sendStatusToWindow('Checking for update...');
+  log.info('Checking for update...');
+  mainWindow.webContents.send('update-message', 'Checking for update...');
 });
 
 autoUpdater.on('update-available', (info) => {
-  sendStatusToWindow('Update available.');
-  mainWindow.webContents.send('update-available');
+  log.info('Update available:', info);
+  // Only notify about the update, don't download it
+  mainWindow.webContents.send('update-available', info);
 });
 
 autoUpdater.on('update-not-available', (info) => {
-  sendStatusToWindow('Update not available.');
+  log.info('Update not available:', info);
+  mainWindow.webContents.send('update-message', 'No updates available.');
 });
 
 autoUpdater.on('error', (err) => {
-  sendStatusToWindow('Error in auto-updater. ' + err);
-});
-
-autoUpdater.on('download-progress', (progressObj) => {
-  let log_message = "Download speed: " + progressObj.bytesPerSecond;
-  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
-  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
-  sendStatusToWindow(log_message);
-  mainWindow.webContents.send('download-progress', progressObj);
-});
-
-autoUpdater.on('update-downloaded', (info) => {
-  sendStatusToWindow('Update downloaded');
-  // Prompt user to install update
-  const dialogOpts = {
-    type: 'info',
-    buttons: ['Restart', 'Later'],
-    title: 'Application Update',
-    message: 'A new version has been downloaded. Restart the application to apply the updates.'
-  };
-
-  dialog.showMessageBox(dialogOpts).then((returnValue) => {
-    if (returnValue.response === 0) autoUpdater.quitAndInstall();
-  });
+  log.error('Error in auto-updater:', err);
+  mainWindow.webContents.send('update-message', `Error: ${err.message}`);
 });
 
 function sendStatusToWindow(text) {
@@ -119,7 +123,9 @@ app.whenReady().then(() => {
   
   // Check for updates after a short delay to ensure the app is fully loaded
   setTimeout(() => {
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.checkForUpdates().catch(err => {
+      log.error('Error checking for updates:', err);
+    });
   }, 3000);
 
   app.on('activate', function () {
@@ -136,7 +142,10 @@ ipcMain.on('close-app', () => {
   app.quit();
 });
 
-// IPC handlers for updates
-ipcMain.on('check-for-updates', () => {
-  autoUpdater.checkForUpdatesAndNotify();
-}); 
+// Check for updates every 30 minutes
+setInterval(() => {
+  log.info('Checking for updates (interval)');
+  autoUpdater.checkForUpdates().catch(err => {
+    log.error('Error checking for updates:', err);
+  });
+}, 30 * 60 * 1000); 

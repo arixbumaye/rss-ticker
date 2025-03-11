@@ -245,44 +245,35 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background-color: #27ae60;
+      background-color: #3498db;
       color: white;
-      padding: 10px 15px;
+      padding: 15px 20px;
       border-radius: 5px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
       z-index: 1000;
       display: none;
       animation: fadeIn 0.5s;
+      max-width: 300px;
+      text-align: center;
     }
 
-    .update-progress {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #2980b9;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      display: none;
-      animation: fadeIn 0.5s;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 5px;
-      background-color: #34495e;
-      margin-top: 5px;
+    .download-button {
+      display: inline-block;
+      background-color: white;
+      color: #3498db;
+      border: none;
       border-radius: 3px;
-      overflow: hidden;
+      padding: 8px 15px;
+      margin-top: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background-color 0.2s;
     }
 
-    .progress-bar-fill {
-      height: 100%;
-      background-color: #ecf0f1;
-      width: 0%;
-      transition: width 0.3s;
+    .download-button:hover {
+      background-color: #f1f1f1;
+      color: #2980b9;
     }
 
     @keyframes fadeIn {
@@ -344,16 +335,12 @@
     </div>
 
     <!-- Update notification -->
-    <div id="update-notification" class="update-notification">
-      A new update is available! It will be installed when you restart the application.
-    </div>
-
-    <!-- Update progress -->
-    <div id="update-progress" class="update-progress">
-      <div id="progress-text">Downloading update...</div>
-      <div class="progress-bar">
-        <div id="progress-bar-fill" class="progress-bar-fill"></div>
-      </div>
+    <div class="update-notification" id="updateNotification">
+      <strong>Version 1.0.2 Available!</strong>
+      <br><br>
+      <span>Please download and install the latest version manually.</span>
+      <br>
+      <a href="https://github.com/arixbumaye/rss-ticker/releases/latest" class="download-button" target="_blank">Download Latest Version</a>
     </div>
 
     <!-- Version indicator -->
@@ -378,10 +365,7 @@
     const speedDisplay = document.getElementById('speed-display');
     const feedCountDisplay = document.getElementById('feed-count');
     const checkUpdatesButton = document.getElementById('check-updates');
-    const updateNotification = document.getElementById('update-notification');
-    const updateProgress = document.getElementById('update-progress');
-    const progressText = document.getElementById('progress-text');
-    const progressBarFill = document.getElementById('progress-bar-fill');
+    const updateNotification = document.getElementById('updateNotification');
     const versionIndicator = document.getElementById('version-indicator');
 
     // Store for active feeds and news items
@@ -443,27 +427,11 @@
         // Listen for update available
         window.electronAPI.onUpdateAvailable(() => {
           updateNotification.style.display = 'block';
-          setTimeout(() => {
-            updateNotification.style.display = 'none';
-          }, 5000);
         });
 
         // Listen for update messages
         window.electronAPI.onUpdateMessage((message) => {
           console.log('Update message:', message);
-        });
-
-        // Listen for download progress
-        window.electronAPI.onDownloadProgress((progressObj) => {
-          updateProgress.style.display = 'block';
-          progressText.textContent = `Downloading update: ${Math.round(progressObj.percent)}%`;
-          progressBarFill.style.width = `${progressObj.percent}%`;
-          
-          if (progressObj.percent === 100) {
-            setTimeout(() => {
-              updateProgress.style.display = 'none';
-            }, 2000);
-          }
         });
       }
     }

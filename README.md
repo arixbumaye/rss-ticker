@@ -8,7 +8,7 @@ A desktop application that displays RSS feeds in a ticker format. The applicatio
 - **Vertical Stacking**: Each feed is displayed in its own row
 - **Customizable Speed**: Adjust the scrolling speed (5s to 120s)
 - **Adjustable Font Size**: Change the text size for better readability
-- **Auto-Updates**: The application automatically checks for and installs updates
+- **Manual Updates**: The application checks for updates and provides a direct download link
 - **Feed Management**: Reorder or remove feeds as needed
 - **Persistent Settings**: Your feeds, font size, and speed settings are saved between sessions
 
@@ -26,6 +26,8 @@ Download the latest version for your platform:
 3. **Adjusting Speed**: Use the "+" and "-" buttons next to "Speed" to adjust scrolling speed
 4. **Changing Font Size**: Use the "+" and "-" buttons next to "Font" to adjust text size
 5. **Checking for Updates**: Click "Check Updates" to manually check for application updates
+   - When an update is available, a notification will appear with a download link
+   - Download and install the new version manually
 
 ## Development
 
@@ -51,6 +53,12 @@ npm start
 npm run build
 ```
 
+## Version History
+
+- **1.0.2**: Improved update notification system with direct download links
+- **1.0.1**: Added multiple feed support and 5-second speed option
+- **1.0.0**: Initial release
+
 ## License
 
 ISC
@@ -58,4 +66,4 @@ ISC
 ## Acknowledgments
 
 - Built with Electron
-- Uses electron-updater for automatic updates 
+- Uses electron-updater for update notifications 
