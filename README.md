@@ -13,7 +13,7 @@ A desktop application that displays RSS feeds in a ticker format. Each feed is d
 
 ## Installation
 
-Download the latest version from the [Releases](https://github.com/arixbumaye/rss-newsfeed/releases) page.
+Download the latest version from the [Releases](https://github.com/arixbumaye/rss-ticker/releases) page.
 
 ### macOS
 
@@ -54,8 +54,8 @@ The application automatically checks for updates when it starts. When an update 
 
 ```bash
 # Clone the repository
-git clone https://github.com/arixbumaye/rss-newsfeed.git
-cd rss-newsfeed
+git clone https://github.com/arixbumaye/rss-ticker.git
+cd rss-ticker
 
 # Install dependencies
 npm install
