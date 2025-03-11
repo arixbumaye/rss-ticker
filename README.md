@@ -55,6 +55,7 @@ npm run build
 
 ## Version History
 
+- **1.0.3**: Added Windows support and fixed close app button
 - **1.0.2**: Improved update notification system with direct download links
 - **1.0.1**: Added multiple feed support and 5-second speed option
 - **1.0.0**: Initial release
