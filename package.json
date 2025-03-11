@@ -1,0 +1,49 @@
+{
+  "name": "rss-newsfeed",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "publish": "electron-builder --publish always"
+  },
+  "keywords": [
+    "rss",
+    "news",
+    "ticker",
+    "desktop"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "A desktop RSS news ticker application",
+  "dependencies": {
+    "electron-log": "^5.1.1",
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "electron": "^35.0.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.rss.newsticker",
+    "productName": "RSS News Ticker",
+    "mac": {
+      "category": "public.app-category.news"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "arixbumaye",
+        "repo": "rss-newsfeed"
+      }
+    ]
+  }
+}

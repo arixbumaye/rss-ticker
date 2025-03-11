@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>RSS News Ticker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      overflow: auto;
+      background-color: #2c3e50;
+      color: white;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background-color: #34495e;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .feed-form {
+      display: flex;
+      gap: 5px;
+    }
+
+    .app-controls {
+      display: flex;
+      gap: 5px;
+    }
+
+    input, button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 3px;
+    }
+
+    input {
+      width: 300px;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #close-app {
+      background-color: #e74c3c;
+    }
+
+    #close-app:hover {
+      background-color: #c0392b;
+    }
+
+    .tickers-container {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .ticker-row {
+      position: relative;
+      overflow: hidden;
+      height: 40px;
+      background-color: #2c3e50;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #34495e;
+    }
+
+    .ticker-label {
+      position: absolute;
+      left: 0;
+      top: 0;
+      background-color: #3498db;
+      color: white;
+      padding: 2px 5px;
+      font-size: 10px;
+      z-index: 5;
+      border-bottom-right-radius: 3px;
+    }
+
+    .news-ticker {
+      display: flex;
+      position: absolute;
+      white-space: nowrap;
+      font-size: 16px; /* Default font size */
+    }
+
+    .news-ticker-wrapper {
+      display: flex;
+    }
+
+    .news-item {
+      margin-right: 50px;
+      cursor: pointer;
+      color: #ecf0f1;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .news-item:hover {
+      color: #3498db;
+    }
+
+    .feed-manager {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #34495e;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      z-index: 10;
+      min-width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .feed-manager h3 {
+      margin-bottom: 10px;
+    }
+
+    .feed-manager ul {
+      list-style: none;
+      margin-bottom: 15px;
+    }
+
+    .feed-manager li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid #2c3e50;
+      word-break: break-all;
+    }
+
+    .feed-manager .feed-url {
+      max-width: 300px;
+      margin-right: 10px;
+    }
+
+    .feed-manager button.remove-feed {
+      background-color: #e74c3c;
+      padding: 2px 5px;
+      font-size: 0.8em;
+      flex-shrink: 0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Font size controls */
+    .font-size-controls, .speed-controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-right: 10px;
+    }
+
+    .font-size-controls button, .speed-controls button {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      padding: 0;
+    }
+
+    /* Make the app draggable */
+    .drag-handle {
+      cursor: move;
+      -webkit-app-region: drag;
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background-color: rgba(255, 255, 255, 0.1);
+      z-index: 101;
+    }
+
+    /* Control labels */
+    .control-label {
+      font-size: 12px;
+      color: #bdc3c7;
+      margin-right: 5px;
+    }
+
+    /* Feed count badge */
+    .feed-count {
+      display: inline-block;
+      background-color: #e74c3c;
+      color: white;
+      border-radius: 10px;
+      padding: 0 6px;
+      font-size: 12px;
+      margin-left: 5px;
+    }
+
+    /* Loading message */
+    .loading-message {
+      text-align: center;
+      padding: 20px;
+      color: #bdc3c7;
+    }
+
+    /* Reorder controls in feed manager */
+    .feed-controls {
+      display: flex;
+      gap: 5px;
+    }
+
+    .move-feed {
+      background-color: #7f8c8d;
+      padding: 2px 5px;
+      font-size: 0.8em;
+    }
+
+    /* Update notification */
+    .update-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #27ae60;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      display: none;
+      animation: fadeIn 0.5s;
+    }
+
+    .update-progress {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #2980b9;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      display: none;
+      animation: fadeIn 0.5s;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 5px;
+      background-color: #34495e;
+      margin-top: 5px;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background-color: #ecf0f1;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Drag handle for moving the window -->
+    <div class="drag-handle"></div>
+    
+    <div class="controls">
+      <div class="feed-form">
+        <input type="text" id="feed-url" placeholder="Enter RSS feed URL...">
+        <button id="add-feed">Add Feed</button>
+      </div>
+      <div class="app-controls">
+        <div class="font-size-controls">
+          <span class="control-label">Font:</span>
+          <button id="decrease-font">-</button>
+          <span id="font-size-display">16px</span>
+          <button id="increase-font">+</button>
+        </div>
+        <div class="speed-controls">
+          <span class="control-label">Speed:</span>
+          <button id="decrease-speed">-</button>
+          <span id="speed-display">30s</span>
+          <button id="increase-speed">+</button>
+        </div>
+        <button id="check-updates">Check Updates</button>
+        <button id="manage-feeds">Manage Feeds <span id="feed-count" class="feed-count">0</span></button>
+        <button id="close-app">Close App</button>
+      </div>
+    </div>
+    
+    <div class="tickers-container" id="tickers-container">
+      <!-- Ticker rows will be added here dynamically -->
+      <div class="loading-message">Add an RSS feed to get started.</div>
+    </div>
+    
+    <div id="feed-manager" class="feed-manager hidden">
+      <h3>Manage RSS Feeds</h3>
+      <ul id="feed-list">
+        <!-- Feed list will be populated here -->
+      </ul>
+      <button id="close-manager">Close</button>
+    </div>
+
+    <!-- Update notification -->
+    <div id="update-notification" class="update-notification">
+      A new update is available! It will be installed when you restart the application.
+    </div>
+
+    <!-- Update progress -->
+    <div id="update-progress" class="update-progress">
+      <div id="progress-text">Downloading update...</div>
+      <div class="progress-bar">
+        <div id="progress-bar-fill" class="progress-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const feedUrlInput = document.getElementById('feed-url');
+    const addFeedButton = document.getElementById('add-feed');
+    const manageFeedsButton = document.getElementById('manage-feeds');
+    const closeAppButton = document.getElementById('close-app');
+    const tickersContainer = document.getElementById('tickers-container');
+    const feedManager = document.getElementById('feed-manager');
+    const feedList = document.getElementById('feed-list');
+    const closeManagerButton = document.getElementById('close-manager');
+    const decreaseFontButton = document.getElementById('decrease-font');
+    const increaseFontButton = document.getElementById('increase-font');
+    const fontSizeDisplay = document.getElementById('font-size-display');
+    const decreaseSpeedButton = document.getElementById('decrease-speed');
+    const increaseSpeedButton = document.getElementById('increase-speed');
+    const speedDisplay = document.getElementById('speed-display');
+    const feedCountDisplay = document.getElementById('feed-count');
+    const checkUpdatesButton = document.getElementById('check-updates');
+    const updateNotification = document.getElementById('update-notification');
+    const updateProgress = document.getElementById('update-progress');
+    const progressText = document.getElementById('progress-text');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+
+    // Store for active feeds and news items
+    let activeFeeds = [];
+    let currentFontSize = 16; // Default font size in pixels
+    let currentSpeed = 30; // Default speed in seconds
+    let tickerAnimations = {}; // Store animations for each ticker
+    let feedsData = {}; // Store feed titles and items
+
+    // Initialize the app
+    async function init() {
+      try {
+        // Load saved feeds from localStorage
+        const savedFeeds = localStorage.getItem('rssFeeds');
+        if (savedFeeds) {
+          activeFeeds = JSON.parse(savedFeeds);
+          updateFeedCount();
+        }
+        
+        // Load saved font size from localStorage
+        const savedFontSize = localStorage.getItem('fontSize');
+        if (savedFontSize) {
+          currentFontSize = parseInt(savedFontSize);
+          updateFontSize(currentFontSize);
+        }
+        
+        // Load saved speed from localStorage
+        const savedSpeed = localStorage.getItem('tickerSpeed');
+        if (savedSpeed) {
+          currentSpeed = parseInt(savedSpeed);
+          updateSpeed(currentSpeed);
+        }
+        
+        // Fetch news from all feeds
+        await refreshAllFeeds();
+        
+        // Set up event listeners
+        setupEventListeners();
+        
+        // Set up auto-refresh every 5 minutes
+        setInterval(refreshAllFeeds, 5 * 60 * 1000);
+
+        // Set up auto-update listeners
+        setupAutoUpdateListeners();
+      } catch (error) {
+        console.error("Initialization error:", error);
+        alert("Error initializing the application. Please restart.");
+      }
+    }
+
+    // Set up auto-update listeners
+    function setupAutoUpdateListeners() {
+      if (window.electronAPI) {
+        // Listen for update available
+        window.electronAPI.onUpdateAvailable(() => {
+          updateNotification.style.display = 'block';
+          setTimeout(() => {
+            updateNotification.style.display = 'none';
+          }, 5000);
+        });
+
+        // Listen for update messages
+        window.electronAPI.onUpdateMessage((message) => {
+          console.log('Update message:', message);
+        });
+
+        // Listen for download progress
+        window.electronAPI.onDownloadProgress((progressObj) => {
+          updateProgress.style.display = 'block';
+          progressText.textContent = `Downloading update: ${Math.round(progressObj.percent)}%`;
+          progressBarFill.style.width = `${progressObj.percent}%`;
+          
+          if (progressObj.percent === 100) {
+            setTimeout(() => {
+              updateProgress.style.display = 'none';
+            }, 2000);
+          }
+        });
+      }
+    }
+
+    // Update feed count display
+    function updateFeedCount() {
+      feedCountDisplay.textContent = activeFeeds.length;
+    }
+
+    // Set up event listeners
+    function setupEventListeners() {
+      // Add feed button
+      addFeedButton.addEventListener('click', async () => {
+        const url = feedUrlInput.value.trim();
+        if (url) {
+          try {
+            // Validate the feed by trying to fetch it
+            await fetchRSS(url);
+            
+            // Add to storage
+            if (!activeFeeds.includes(url)) {
+              activeFeeds.push(url);
+              localStorage.setItem('rssFeeds', JSON.stringify(activeFeeds));
+              updateFeedCount();
+            }
+            
+            // Clear input
+            feedUrlInput.value = '';
+            
+            // Refresh feeds
+            await refreshAllFeeds();
+            
+            // Update the feed manager list
+            updateFeedManagerList();
+          } catch (error) {
+            alert(`Error adding feed: ${error.message}`);
+          }
+        }
+      });
+      
+      // Manage feeds button
+      manageFeedsButton.addEventListener('click', () => {
+        updateFeedManagerList();
+        feedManager.classList.remove('hidden');
+      });
+      
+      // Close manager button
+      closeManagerButton.addEventListener('click', () => {
+        feedManager.classList.add('hidden');
+      });
+      
+      // Close app button
+      closeAppButton.addEventListener('click', () => {
+        if (window.electronAPI) {
+          window.electronAPI.closeWindow();
+        }
+      });
+      
+      // Check for updates button
+      checkUpdatesButton.addEventListener('click', () => {
+        if (window.electronAPI) {
+          window.electronAPI.checkForUpdates();
+          alert('Checking for updates...');
+        }
+      });
+      
+      // Font size controls
+      decreaseFontButton.addEventListener('click', () => {
+        if (currentFontSize > 8) {
+          updateFontSize(currentFontSize - 2);
+        }
+      });
+      
+      increaseFontButton.addEventListener('click', () => {
+        if (currentFontSize < 72) {
+          updateFontSize(currentFontSize + 2);
+        }
+      });
+      
+      // Speed controls
+      decreaseSpeedButton.addEventListener('click', () => {
+        if (currentSpeed > 5) {
+          // Allow going down to 5 seconds
+          const newSpeed = currentSpeed <= 10 ? 5 : currentSpeed - 10;
+          updateSpeed(newSpeed);
+        }
+      });
+      
+      increaseSpeedButton.addEventListener('click', () => {
+        if (currentSpeed < 120) {
+          // Handle the special case of 5 seconds
+          const newSpeed = currentSpeed === 5 ? 10 : currentSpeed + 10;
+          updateSpeed(newSpeed);
+        }
+      });
+    }
+
+    // Update font size
+    function updateFontSize(size) {
+      currentFontSize = size;
+      document.querySelectorAll('.news-ticker').forEach(ticker => {
+        ticker.style.fontSize = `${size}px`;
+      });
+      fontSizeDisplay.textContent = `${size}px`;
+      
+      // Adjust ticker row height based on font size
+      document.querySelectorAll('.ticker-row').forEach(row => {
+        row.style.height = `${Math.max(40, size * 1.5)}px`;
+      });
+      
+      // Save to localStorage
+      localStorage.setItem('fontSize', size);
+      
+      // Update all tickers to apply new font size
+      updateAllTickers();
+    }
+    
+    // Update ticker speed
+    function updateSpeed(speed) {
+      currentSpeed = speed;
+      speedDisplay.textContent = `${speed}s`;
+      
+      // Save to localStorage
+      localStorage.setItem('tickerSpeed', speed);
+      
+      // Update all tickers to apply new speed
+      updateAllTickers();
+    }
+
+    // Update the feed manager list
+    function updateFeedManagerList() {
+      feedList.innerHTML = '';
+      
+      if (activeFeeds.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'No feeds added yet.';
+        feedList.appendChild(li);
+        return;
+      }
+      
+      activeFeeds.forEach((feed, index) => {
+        const li = document.createElement('li');
+        
+        const feedUrl = document.createElement('span');
+        feedUrl.textContent = feed;
+        feedUrl.className = 'feed-url';
+        
+        // Add feed title if available
+        if (feedsData[feed] && feedsData[feed].title) {
+          feedUrl.textContent = `${feedsData[feed].title} (${feed})`;
+        }
+        
+        li.appendChild(feedUrl);
+        
+        const controlsDiv = document.createElement('div');
+        controlsDiv.className = 'feed-controls';
+        
+        // Add move up button (except for first item)
+        if (index > 0) {
+          const moveUpButton = document.createElement('button');
+          moveUpButton.textContent = '↑';
+          moveUpButton.classList.add('move-feed');
+          moveUpButton.addEventListener('click', async () => {
+            // Swap with the feed above
+            [activeFeeds[index], activeFeeds[index-1]] = [activeFeeds[index-1], activeFeeds[index]];
+            localStorage.setItem('rssFeeds', JSON.stringify(activeFeeds));
+            updateFeedManagerList();
+            await refreshAllFeeds();
+          });
+          controlsDiv.appendChild(moveUpButton);
+        }
+        
+        // Add move down button (except for last item)
+        if (index < activeFeeds.length - 1) {
+          const moveDownButton = document.createElement('button');
+          moveDownButton.textContent = '↓';
+          moveDownButton.classList.add('move-feed');
+          moveDownButton.addEventListener('click', async () => {
+            // Swap with the feed below
+            [activeFeeds[index], activeFeeds[index+1]] = [activeFeeds[index+1], activeFeeds[index]];
+            localStorage.setItem('rssFeeds', JSON.stringify(activeFeeds));
+            updateFeedManagerList();
+            await refreshAllFeeds();
+          });
+          controlsDiv.appendChild(moveDownButton);
+        }
+        
+        const removeButton = document.createElement('button');
+        removeButton.textContent = 'Remove';
+        removeButton.classList.add('remove-feed');
+        removeButton.addEventListener('click', async () => {
+          activeFeeds = activeFeeds.filter(f => f !== feed);
+          localStorage.setItem('rssFeeds', JSON.stringify(activeFeeds));
+          updateFeedCount();
+          updateFeedManagerList();
+          await refreshAllFeeds();
+        });
+        
+        controlsDiv.appendChild(removeButton);
+        li.appendChild(controlsDiv);
+        feedList.appendChild(li);
+      });
+    }
+
+    // Fetch and parse RSS feed
+    async function fetchRSS(url) {
+      try {
+        // Use a CORS proxy to avoid cross-origin issues
+        const corsProxy = 'https://api.allorigins.win/raw?url=';
+        const response = await fetch(corsProxy + encodeURIComponent(url));
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch RSS feed');
+        }
+        
+        const text = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(text, "text/xml");
+        
+        // Basic RSS parsing
+        const channel = xmlDoc.querySelector("channel");
+        const title = channel ? channel.querySelector("title")?.textContent : "Unknown Feed";
+        const items = Array.from(xmlDoc.querySelectorAll("item")).map(item => ({
+          title: item.querySelector("title")?.textContent || "No Title",
+          link: item.querySelector("link")?.textContent || "#",
+          pubDate: item.querySelector("pubDate")?.textContent || new Date().toISOString()
+        }));
+        
+        // Store feed data
+        feedsData[url] = { title, items };
+        
+        return { title, items };
+      } catch (error) {
+        console.error("Error fetching RSS:", error);
+        throw new Error("Failed to parse RSS feed");
+      }
+    }
+
+    // Fetch news from all feeds
+    async function refreshAllFeeds() {
+      // Clear all existing ticker animations
+      Object.values(tickerAnimations).forEach(animation => {
+        if (animation) animation.cancel();
+      });
+      tickerAnimations = {};
+      
+      // Clear the tickers container
+      tickersContainer.innerHTML = '';
+      
+      if (activeFeeds.length === 0) {
+        const loadingMessage = document.createElement('div');
+        loadingMessage.className = 'loading-message';
+        loadingMessage.textContent = 'Add an RSS feed to get started.';
+        tickersContainer.appendChild(loadingMessage);
+        return;
+      }
+      
+      // Process each feed and create a ticker for it
+      for (let i = 0; i < activeFeeds.length; i++) {
+        const feedUrl = activeFeeds[i];
+        
+        // Create a ticker row for this feed
+        const tickerRow = document.createElement('div');
+        tickerRow.className = 'ticker-row';
+        tickerRow.style.height = `${Math.max(40, currentFontSize * 1.5)}px`;
+        tickerRow.id = `ticker-row-${i}`;
+        
+        // Add a loading message initially
+        const loadingTicker = document.createElement('div');
+        loadingTicker.className = 'news-ticker';
+        loadingTicker.style.fontSize = `${currentFontSize}px`;
+        
+        const loadingItem = document.createElement('span');
+        loadingItem.textContent = 'Loading feed...';
+        loadingItem.className = 'news-item';
+        
+        loadingTicker.appendChild(loadingItem);
+        tickerRow.appendChild(loadingTicker);
+        
+        // Add the ticker row to the container
+        tickersContainer.appendChild(tickerRow);
+        
+        try {
+          // Fetch the feed
+          const feed = await fetchRSS(feedUrl);
+          
+          // Add a label with the feed title
+          const tickerLabel = document.createElement('div');
+          tickerLabel.className = 'ticker-label';
+          tickerLabel.textContent = feed.title;
+          tickerRow.appendChild(tickerLabel);
+          
+          // Clear the loading message
+          tickerRow.innerHTML = '';
+          tickerRow.appendChild(tickerLabel);
+          
+          // Create the actual ticker for this feed
+          if (feed.items.length > 0) {
+            createTickerForFeed(tickerRow, feed.items, feed.title, i);
+          } else {
+            // No items in this feed
+            const emptyTicker = document.createElement('div');
+            emptyTicker.className = 'news-ticker';
+            emptyTicker.style.fontSize = `${currentFontSize}px`;
+            
+            const emptyItem = document.createElement('span');
+            emptyItem.textContent = 'No items in this feed.';
+            emptyItem.className = 'news-item';
+            
+            emptyTicker.appendChild(emptyItem);
+            tickerRow.appendChild(emptyTicker);
+          }
+        } catch (error) {
+          console.error(`Error fetching feed ${feedUrl}:`, error);
+          
+          // Show error in the ticker
+          const errorTicker = document.createElement('div');
+          errorTicker.className = 'news-ticker';
+          errorTicker.style.fontSize = `${currentFontSize}px`;
+          
+          const errorItem = document.createElement('span');
+          errorItem.textContent = `Error loading feed: ${error.message}`;
+          errorItem.className = 'news-item';
+          
+          errorTicker.appendChild(errorItem);
+          
+          // Clear the ticker row and add the error message
+          tickerRow.innerHTML = '';
+          
+          // Add a label with "Error" as the title
+          const tickerLabel = document.createElement('div');
+          tickerLabel.className = 'ticker-label';
+          tickerLabel.textContent = 'Error';
+          tickerRow.appendChild(tickerLabel);
+          
+          tickerRow.appendChild(errorTicker);
+        }
+      }
+    }
+
+    // Create a ticker for a specific feed
+    function createTickerForFeed(tickerRow, items, feedTitle, index) {
+      // Create the ticker element
+      const ticker = document.createElement('div');
+      ticker.className = 'news-ticker';
+      ticker.style.fontSize = `${currentFontSize}px`;
+      ticker.id = `ticker-${index}`;
+      
+      // Create a wrapper for continuous scrolling
+      const wrapper = document.createElement('div');
+      wrapper.className = 'news-ticker-wrapper';
+      
+      // Create the original set of news items
+      const originalItems = document.createElement('div');
+      originalItems.className = 'news-ticker-items';
+      
+      items.forEach(item => {
+        const newsItem = document.createElement('span');
+        newsItem.textContent = item.title;
+        newsItem.classList.add('news-item');
+        newsItem.addEventListener('click', () => {
+          window.open(item.link, '_blank');
+        });
+        
+        originalItems.appendChild(newsItem);
+      });
+      
+      // Create a duplicate set for seamless looping
+      const duplicateItems = originalItems.cloneNode(true);
+      
+      // Add both sets to the wrapper
+      wrapper.appendChild(originalItems);
+      wrapper.appendChild(duplicateItems);
+      
+      // Add the wrapper to the ticker
+      ticker.appendChild(wrapper);
+      
+      // Add the ticker to the row
+      tickerRow.appendChild(ticker);
+      
+      // Start the animation after a short delay to ensure DOM is updated
+      setTimeout(() => {
+        // Get the width of the original items
+        const itemsWidth = originalItems.offsetWidth;
+        
+        // Set up the animation
+        const duration = currentSpeed * (itemsWidth / 500); // Adjust speed based on content length
+        
+        // Create and start the animation
+        tickerAnimations[index] = wrapper.animate(
+          [
+            { transform: 'translateX(0)' },
+            { transform: `translateX(-${itemsWidth}px)` }
+          ],
+          {
+            duration: duration * 1000, // Convert to milliseconds
+            iterations: Infinity,
+            easing: 'linear'
+          }
+        );
+      }, 100);
+    }
+
+    // Update all tickers (used when font size or speed changes)
+    function updateAllTickers() {
+      // Cancel all existing animations
+      Object.values(tickerAnimations).forEach(animation => {
+        if (animation) animation.cancel();
+      });
+      tickerAnimations = {};
+      
+      // Update each ticker row
+      document.querySelectorAll('.ticker-row').forEach((row, index) => {
+        const ticker = row.querySelector('.news-ticker');
+        if (!ticker) return;
+        
+        const wrapper = ticker.querySelector('.news-ticker-wrapper');
+        if (!wrapper) return;
+        
+        const originalItems = wrapper.querySelector('.news-ticker-items');
+        if (!originalItems) return;
+        
+        // Get the width of the original items
+        const itemsWidth = originalItems.offsetWidth;
+        
+        // Set up the animation
+        const duration = currentSpeed * (itemsWidth / 500); // Adjust speed based on content length
+        
+        // Create and start the animation
+        tickerAnimations[index] = wrapper.animate(
+          [
+            { transform: 'translateX(0)' },
+            { transform: `translateX(-${itemsWidth}px)` }
+          ],
+          {
+            duration: duration * 1000, // Convert to milliseconds
+            iterations: Infinity,
+            easing: 'linear'
+          }
+        );
+      });
+    }
+
+    // Initialize the app when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html> 
