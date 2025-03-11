@@ -32,8 +32,11 @@ Download the latest version for your platform from the [releases page](https://g
      5. Alternatively, right-click (or Control+click) on the app and select "Open", then click "Open" in the dialog that appears
    - If you get a message saying the app "is damaged and should be moved to the Trash", try these steps:
      1. Open Terminal (from Applications > Utilities)
-     2. Run this command: `xattr -cr /Applications/RSS\ News\ Ticker.app`
-     3. Try opening the app again
+     2. Find the exact location of your app by running: `find /Applications -name "*.app" | grep -i rss`
+     3. Run this command with the path from the previous step: `xattr -cr /path/to/your/RSS\ News\ Ticker.app`
+        - For example: `xattr -cr /Applications/RSS\ News\ Ticker.app`
+        - If you installed it elsewhere, use that path instead
+     4. Try opening the app again
 
 ### For Windows Users:
 
