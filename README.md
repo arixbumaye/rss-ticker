@@ -1,47 +1,31 @@
 # RSS News Ticker
 
-A desktop application that displays RSS feeds in a ticker format. Each feed is displayed in its own row, with the oldest feed at the top and newest at the bottom.
+A desktop application that displays RSS feeds in a ticker format. The application allows you to add multiple RSS feeds, which are displayed in separate rows, each scrolling horizontally.
 
 ## Features
 
 - **Multiple RSS Feeds**: Add and manage multiple RSS feeds
-- **Vertical Layout**: Each feed gets its own dedicated ticker row
-- **Customizable Speed**: Adjust how fast the news items scroll (from 5 to 120 seconds)
-- **Adjustable Font Size**: Change the text size to your preference
-- **Feed Management**: Reorder, add, or remove feeds easily
+- **Vertical Stacking**: Each feed is displayed in its own row
+- **Customizable Speed**: Adjust the scrolling speed (5s to 120s)
+- **Adjustable Font Size**: Change the text size for better readability
 - **Auto-Updates**: The application automatically checks for and installs updates
+- **Feed Management**: Reorder or remove feeds as needed
+- **Persistent Settings**: Your feeds, font size, and speed settings are saved between sessions
 
 ## Installation
 
-Download the latest version from the [Releases](https://github.com/arixbumaye/rss-ticker/releases) page.
+Download the latest version for your platform:
 
-### macOS
-
-1. Download the `.dmg` file
-2. Open the DMG file and drag the application to your Applications folder
-3. Right-click the app and select "Open" (required the first time due to security settings)
-
-### Windows
-
-1. Download the `.exe` installer
-2. Run the installer and follow the prompts
-3. The application will be installed and added to your Start menu
+- [macOS](https://github.com/arixbumaye/rss-ticker/releases/latest)
+- [Windows](https://github.com/arixbumaye/rss-ticker/releases/latest)
 
 ## Usage
 
 1. **Adding Feeds**: Enter an RSS feed URL in the input field and click "Add Feed"
 2. **Managing Feeds**: Click "Manage Feeds" to reorder or remove feeds
-3. **Adjusting Speed**: Use the "+" and "-" buttons next to "Speed" to change scrolling speed
+3. **Adjusting Speed**: Use the "+" and "-" buttons next to "Speed" to adjust scrolling speed
 4. **Changing Font Size**: Use the "+" and "-" buttons next to "Font" to adjust text size
-5. **Checking for Updates**: Click "Check Updates" to manually check for new versions
-
-## Auto-Update
-
-The application automatically checks for updates when it starts. When an update is available:
-
-1. It will be downloaded in the background
-2. A notification will appear when the download is complete
-3. The update will be installed when you restart the application
+5. **Checking for Updates**: Click "Check Updates" to manually check for application updates
 
 ## Development
 
@@ -69,4 +53,9 @@ npm run build
 
 ## License
 
-ISC 
+ISC
+
+## Acknowledgments
+
+- Built with Electron
+- Uses electron-updater for automatic updates 
