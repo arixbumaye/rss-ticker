@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld(
     // App version
     appVersion: version,
     
+    // Window control
+    closeWindow: () => ipcRenderer.send('close-app'),
+    
     // Auto-update functions
     checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
     
