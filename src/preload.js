@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const { version } = require('../package.json');
 
 // Expose minimal API to the renderer process
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -17,5 +18,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   onDownloadProgress: (callback) => {
     ipcRenderer.on('download-progress', (event, progressObj) => callback(progressObj));
-  }
+  },
+  // Expose app version
+  appVersion: version
 }); 

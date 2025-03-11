@@ -289,6 +289,16 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+
+    /* Version indicator */
+    .version-indicator {
+      position: fixed;
+      bottom: 5px;
+      left: 5px;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.3);
+      z-index: 50;
+    }
   </style>
 </head>
 <body>
@@ -345,6 +355,9 @@
         <div id="progress-bar-fill" class="progress-bar-fill"></div>
       </div>
     </div>
+
+    <!-- Version indicator -->
+    <div id="version-indicator" class="version-indicator">v1.0.0</div>
   </div>
 
   <script>
@@ -369,6 +382,7 @@
     const updateProgress = document.getElementById('update-progress');
     const progressText = document.getElementById('progress-text');
     const progressBarFill = document.getElementById('progress-bar-fill');
+    const versionIndicator = document.getElementById('version-indicator');
 
     // Store for active feeds and news items
     let activeFeeds = [];
@@ -380,6 +394,11 @@
     // Initialize the app
     async function init() {
       try {
+        // Set version indicator from package.json
+        if (window.electronAPI && window.electronAPI.appVersion) {
+          versionIndicator.textContent = `v${window.electronAPI.appVersion}`;
+        }
+        
         // Load saved feeds from localStorage
         const savedFeeds = localStorage.getItem('rssFeeds');
         if (savedFeeds) {
