@@ -82,6 +82,14 @@ function createWindow() {
     });
   });
 
+  // Handle open-external event
+  ipcMain.on('open-external', (_, url) => {
+    log.info('Opening external URL:', url);
+    shell.openExternal(url).catch(err => {
+      log.error('Error opening external URL:', err);
+    });
+  });
+
   // Open external links in default browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);

@@ -11,6 +11,9 @@ contextBridge.exposeInMainWorld(
     // Window control
     closeWindow: () => ipcRenderer.send('close-app'),
     
+    // Open external links
+    openExternal: (url) => ipcRenderer.send('open-external', url),
+    
     // Auto-update functions
     checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
     

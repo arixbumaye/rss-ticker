@@ -2,6 +2,8 @@
 
 A desktop application that displays RSS feeds in a ticker format. The application allows you to add multiple RSS feeds, which are displayed in separate rows, each scrolling horizontally.
 
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support%20This%20Project-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/bh2qKqcJtf)
+
 ## Features
 
 - **Multiple RSS Feeds**: Add and manage multiple RSS feeds
@@ -14,10 +16,30 @@ A desktop application that displays RSS feeds in a ticker format. The applicatio
 
 ## Installation
 
-Download the latest version for your platform:
+Download the latest version for your platform from the [releases page](https://github.com/arixbumaye/rss-ticker/releases/latest).
 
-- [macOS](https://github.com/arixbumaye/rss-ticker/releases/latest)
-- [Windows](https://github.com/arixbumaye/rss-ticker/releases/latest)
+### For macOS Users:
+
+1. **Download the DMG file** only (e.g., `RSS-News-Ticker-1.0.3-arm64.dmg`) - you don't need any of the other files
+2. **Open the DMG file** by double-clicking it
+3. **Drag the RSS News Ticker app** to your Applications folder
+4. **Open the app** from your Applications folder
+   - If you get a security warning, right-click (or Control+click) on the app and select "Open"
+   - Click "Open" in the dialog that appears
+
+### For Windows Users:
+
+1. **Download the EXE installer** only (e.g., `RSS-News-Ticker-Setup-1.0.3.exe`) - you don't need any of the other files
+2. **Run the installer** by double-clicking it
+3. **Follow the installation wizard** to complete the installation
+4. **Launch the app** from your Start menu or desktop shortcut
+   - If you get a SmartScreen warning, click "More info" and then "Run anyway"
+
+### Important Notes:
+
+- You only need to download ONE file for installation (the DMG for macOS or the EXE for Windows)
+- The other files (blockmap, yml) are used by the auto-update system and don't need to be downloaded manually
+- The application will automatically check for updates and notify you when a new version is available
 
 ## Usage
 
@@ -28,6 +50,12 @@ Download the latest version for your platform:
 5. **Checking for Updates**: Click "Check Updates" to manually check for application updates
    - When an update is available, a notification will appear with a download link
    - Download and install the new version manually
+
+## Support This Project
+
+If you find this application useful, please consider supporting its development:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support%20This%20Project-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://buymeacoffee.com/bh2qKqcJtf)
 
 ## Development
 

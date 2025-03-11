@@ -290,6 +290,25 @@
       color: rgba(255, 255, 255, 0.3);
       z-index: 50;
     }
+
+    /* Buy Me a Coffee button */
+    .donate-button {
+      background-color: #FFDD00;
+      color: #000000;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .donate-button:hover {
+      background-color: #E5C700;
+    }
+
+    .donate-button img {
+      width: 16px;
+      height: 16px;
+    }
   </style>
 </head>
 <body>
@@ -301,6 +320,10 @@
       <div class="feed-form">
         <input type="text" id="feed-url" placeholder="Enter RSS feed URL...">
         <button id="add-feed">Add Feed</button>
+        <button id="donate-button" class="donate-button">
+          <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Coffee cup">
+          Support
+        </button>
       </div>
       <div class="app-controls">
         <div class="font-size-controls">
@@ -351,6 +374,7 @@
     // DOM Elements
     const feedUrlInput = document.getElementById('feed-url');
     const addFeedButton = document.getElementById('add-feed');
+    const donateButton = document.getElementById('donate-button');
     const manageFeedsButton = document.getElementById('manage-feeds');
     const closeAppButton = document.getElementById('close-app');
     const tickersContainer = document.getElementById('tickers-container');
@@ -469,6 +493,15 @@
           } catch (error) {
             alert(`Error adding feed: ${error.message}`);
           }
+        }
+      });
+      
+      // Donate button
+      donateButton.addEventListener('click', () => {
+        if (window.electronAPI) {
+          window.electronAPI.openExternal('https://buymeacoffee.com/bh2qKqcJtf');
+        } else {
+          window.open('https://buymeacoffee.com/bh2qKqcJtf', '_blank');
         }
       });
       
