@@ -24,8 +24,16 @@ Download the latest version for your platform from the [releases page](https://g
 2. **Open the DMG file** by double-clicking it
 3. **Drag the RSS News Ticker app** to your Applications folder
 4. **Open the app** from your Applications folder
-   - If you get a security warning, right-click (or Control+click) on the app and select "Open"
-   - Click "Open" in the dialog that appears
+   - If you get a security warning saying the app "cannot be opened because the developer cannot be verified" or "is damaged and can't be opened", follow these steps:
+     1. Open System Preferences (or System Settings on newer macOS)
+     2. Go to "Security & Privacy"
+     3. Look for a message about RSS News Ticker being blocked
+     4. Click "Open Anyway" or "Allow"
+     5. Alternatively, right-click (or Control+click) on the app and select "Open", then click "Open" in the dialog that appears
+   - If you get a message saying the app "is damaged and should be moved to the Trash", try these steps:
+     1. Open Terminal (from Applications > Utilities)
+     2. Run this command: `xattr -cr /Applications/RSS\ News\ Ticker.app`
+     3. Try opening the app again
 
 ### For Windows Users:
 
@@ -40,6 +48,7 @@ Download the latest version for your platform from the [releases page](https://g
 - You only need to download ONE file for installation (the DMG for macOS or the EXE for Windows)
 - The other files (blockmap, yml) are used by the auto-update system and don't need to be downloaded manually
 - The application will automatically check for updates and notify you when a new version is available
+- The application is not code signed, which may trigger security warnings on macOS and Windows
 
 ## Usage
 
